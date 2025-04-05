@@ -20,31 +20,12 @@
   </header>
 
   <section class="filters">
-    <button class="filter-button">All</button>
-    <button class="filter-button">Lost</button>
-    <button class="filter-button">Found</button>
-    <button class="filter-button">Electronics</button>
-    <button class="filter-button">Pets</button>
+    <button class="filter-button" data-filter="all">All</button>
+    <button class="filter-button" data-filter="lost">Lost</button>
+    <button class="filter-button" data-filter="found">Found</button>
   </section>
 
-  <main class="item-grid" id="itemGrid">
-    <div class="item-card">
-      <img src="https://lostfound-images-team14.s3.us-east-1.amazonaws.com/sshreked.jpeg" alt="Item Image">
-      <div class="item-info">
-        <h2>Black Wallet</h2>
-        <p>Lost near Orchard MRT. Contains ID and credit cards.</p>
-        <span class="tag lost">Lost</span>
-      </div>
-    </div>
-    <div class="item-card">
-      <img src="https://via.placeholder.com/150" alt="Item Image">
-      <div class="item-info">
-        <h2>Orange Cat</h2>
-        <p>Found near Bishan Park. Very friendly and healthy.</p>
-        <span class="tag found">Found</span>
-      </div>
-    </div>
-  </main>
+  <main class="item-grid" id="itemGrid"></main>
 
   <!-- LOGIN MODAL -->
   <div id="loginModal" class="modal hidden">
