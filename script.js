@@ -13,7 +13,8 @@ function renderItemCard(item) {
   info.innerHTML = `
     <h2>${item.title}</h2>
     <p>${item.description}</p>
-    <span class="tag ${item.category}">${item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+    ${item.location ? `<p><em>Location Found: ${item.location}</em></p>` : ""}
+    <span class="tag lost">Lost</span>
   `;
 
   card.appendChild(image);
@@ -26,7 +27,6 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
 
   const title = document.getElementById("itemTitle").value;
   const description = document.getElementById("itemDescription").value;
-  const category = document.getElementById("itemCategory").value;
   const location = document.getElementById("itemLocation").value;
   const imageInput = document.getElementById("itemImage");
   const image = imageInput.files[0];
@@ -39,9 +39,9 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
     const newItem = {
       title,
       description,
-      category,
       location,
       image: imageData,
+      category: "lost"                  // Automatically assign 'lost' tag
     };
 
     const items = JSON.parse(localStorage.getItem("lostFoundItems")) || [];
@@ -50,6 +50,7 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
 
     renderItemCard(newItem);
     document.getElementById("postForm").reset();
+    closeModal("postModal");
   };
 
   if (image) {
