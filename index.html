@@ -2,14 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simple Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lost & Found</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Welcome to My Website</h1>
-  <p>Click the button below:</p>
-  <button onclick="sayHello()">Click Me</button>
+  <header>
+    <h1>Lost & Found</h1>
+    <input type="text" placeholder="Search for lost or found items..." class="search-bar" />
+  </header>
+
+  <section class="filters">
+    <button class="filter-button">All</button>
+    <button class="filter-button">Lost</button>
+    <button class="filter-button">Found</button>
+    <button class="filter-button">Electronics</button>
+    <button class="filter-button">Pets</button>
+  </section>
+
+  <main class="item-grid">
+    <div class="item-card">
+      <img src="https://via.placeholder.com/150" alt="Item Image">
+      <div class="item-info">
+        <h2>Black Wallet</h2>
+        <p>Lost near Orchard MRT. Contains ID and credit cards.</p>
+        <span class="tag lost">Lost</span>
+      </div>
+    </div>
+    <div class="item-card">
+      <img src="https://via.placeholder.com/150" alt="Item Image">
+      <div class="item-info">
+        <h2>Orange Cat</h2>
+        <p>Found near Bishan Park. Very friendly and healthy.</p>
+        <span class="tag found">Found</span>
+      </div>
+    </div>
+    <!-- More item cards -->
+  </main>
 
   <script src="script.js"></script>
 </body>
