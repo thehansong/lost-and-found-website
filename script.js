@@ -13,14 +13,47 @@ function renderItemCard(item) {
   info.innerHTML = `
     <h2>${item.title}</h2>
     <p>${item.description}</p>
-    ${item.location ? `<p><em>Location Found: ${item.location}</em></p>` : ""}
-    <span class="tag lost">Lost</span>
+    ${item.location ? `<p><em>Location: ${item.location}</em></p>` : ""}
+    <span class="tag ${item.category}">${item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
   `;
 
   card.appendChild(image);
   card.appendChild(info);
-  itemGrid.prepend(card);
+  itemGrid.appendChild(card);
 }
+
+function renderFilteredItems(filter) {
+  const itemGrid = document.getElementById("itemGrid");
+  itemGrid.innerHTML = "";
+
+  const items = JSON.parse(localStorage.getItem("lostFoundItems")) || [];
+  const filteredItems = filter === "all" ? items : items.filter(item => item.category === filter);
+
+  filteredItems.forEach(renderItemCard);
+}
+
+let currentFilter = "all"; // Track which filter is active
+
+document.querySelectorAll(".filter-button").forEach(button => {
+  button.addEventListener("click", () => {
+    const selectedFilter = button.getAttribute("data-filter");
+
+    if (currentFilter === selectedFilter && selectedFilter !== "all") {
+      // Toggle off: return to "All"
+      currentFilter = "all";
+    } else {
+      currentFilter = selectedFilter;
+    }
+
+    // Update active class
+    document.querySelectorAll(".filter-button").forEach(btn => {
+      btn.classList.remove("active");
+    });
+    document.querySelector(`.filter-button[data-filter="${currentFilter}"]`)?.classList.add("active");
+
+    renderFilteredItems(currentFilter);
+  });
+});
 
 document.getElementById("postForm")?.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -41,14 +74,14 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
       description,
       location,
       image: imageData,
-      category: "lost"                  // Automatically assign 'lost' tag
+      category: "lost" // Default assigned category when first posted
     };
 
     const items = JSON.parse(localStorage.getItem("lostFoundItems")) || [];
     items.push(newItem);
     localStorage.setItem("lostFoundItems", JSON.stringify(items));
 
-    renderItemCard(newItem);
+    renderFilteredItems(currentFilter);
     document.getElementById("postForm").reset();
     closeModal("postModal");
   };
@@ -60,12 +93,12 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
   }
 });
 
-window.addEventListener("DOMContentLoaded", function () {
-  const items = JSON.parse(localStorage.getItem("lostFoundItems")) || [];
-  items.forEach(renderItemCard);
+window.addEventListener("DOMContentLoaded", () => {
+  renderFilteredItems("all");
+  document.querySelector('.filter-button[data-filter="all"]')?.classList.add("active");
 });
 
-// 🔐 Modal control logic
+// Modal logic
 function openModal(modalId) {
   document.getElementById(modalId).classList.remove("hidden");
 }
