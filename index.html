@@ -16,6 +16,7 @@
       </div>
     </div>
     <input type="text" placeholder="Search for lost or found items..." class="search-bar" />
+    <button class="post-button" onclick="openModal('postModal')">+ Post Lost Item</button>
   </header>
 
   <section class="filters">
@@ -68,6 +69,21 @@
         <input type="password" placeholder="Password" required />
         <input type="password" placeholder="Confirm Password" required />
         <button type="submit">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- POST ITEM MODAL -->
+  <div id="postModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('postModal')">&times;</span>
+      <h2>Post Lost & Found Item</h2>
+      <form id="postForm">
+        <input type="text" id="itemTitle" placeholder="Item Title" required />
+        <input type="text" id="itemDescription" placeholder="Description" required />
+        <input type="text" id="itemLocation" placeholder="Location (optional)" />
+        <input type="file" id="itemImage" accept="image/*" />
+        <button type="submit">Submit Item</button>
       </form>
     </div>
   </div>

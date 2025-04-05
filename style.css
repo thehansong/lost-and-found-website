@@ -219,3 +219,20 @@ h1 {
 .close-button:hover {
   color: #000;
 }
+
+.post-button {
+  margin-top: 1rem;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.post-button:hover {
+  background-color: #e0a800;
+}
