@@ -21,7 +21,7 @@ function renderItemCard(item) {
   itemGrid.prepend(card);
 }
 
-document.getElementById("postForm").addEventListener("submit", function (e) {
+document.getElementById("postForm")?.addEventListener("submit", function (e) {
   e.preventDefault();
 
   const title = document.getElementById("itemTitle").value;
@@ -62,4 +62,25 @@ document.getElementById("postForm").addEventListener("submit", function (e) {
 window.addEventListener("DOMContentLoaded", function () {
   const items = JSON.parse(localStorage.getItem("lostFoundItems")) || [];
   items.forEach(renderItemCard);
+});
+
+// 🔐 Modal control logic
+function openModal(modalId) {
+  document.getElementById(modalId).classList.remove("hidden");
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.add("hidden");
+}
+
+document.getElementById("loginForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  alert("Logging in with fake frontend logic…");
+  closeModal("loginModal");
+});
+
+document.getElementById("registerForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  alert("Registering with fake frontend logic…");
+  closeModal("registerModal");
 });

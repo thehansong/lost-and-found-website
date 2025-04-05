@@ -11,8 +11,8 @@
     <div class="header-content">
       <h1>Lost & Found</h1>
       <div class="auth-buttons">
-        <button class="auth-button" onclick="location.href='login.html'">Login</button>
-        <button class="auth-button register" onclick="location.href='register.html'">Register</button>
+        <button class="auth-button" onclick="openModal('loginModal')">Login</button>
+        <button class="auth-button register" onclick="openModal('registerModal')">Register</button>
       </div>
     </div>
     <input type="text" placeholder="Search for lost or found items..." class="search-bar" />
@@ -44,6 +44,33 @@
       </div>
     </div>
   </main>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('loginModal')">&times;</span>
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="email" placeholder="University Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('registerModal')">&times;</span>
+      <h2>Register</h2>
+      <form id="registerForm">
+        <input type="email" placeholder="University Email" required />
+        <input type="password" placeholder="Password" required />
+        <input type="password" placeholder="Confirm Password" required />
+        <button type="submit">Register</button>
+      </form>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
