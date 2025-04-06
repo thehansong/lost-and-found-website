@@ -10,13 +10,16 @@
   <header>
     <div class="header-content">
       <h1>Lost & Found</h1>
-      <div class="auth-buttons">
+      <!-- <div class="auth-buttons">
         <button class="auth-button" onclick="openModal('loginModal')">Login</button>
         <button class="auth-button register" onclick="openModal('registerModal')">Register</button>
-      </div>
+      </div> -->
+      <div class="auth-buttons" id="authButtons">
+        <!-- This will be filled dynamically -->
+      </div>      
     </div>
     <input type="text" placeholder="Search for lost or found items..." class="search-bar" />
-    <button class="post-button" onclick="openModal('postModal')">+ Post Lost Item</button>
+    <button class="post-button" id="postButton" onclick="openModal('postModal')" disabled>+ Post Lost Item</button>
   </header>
 
   <section class="filters">

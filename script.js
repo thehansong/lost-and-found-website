@@ -140,6 +140,7 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
 window.addEventListener("DOMContentLoaded", () => {
   fetchItems();
   document.querySelector('.filter-button[data-filter="all"]')?.classList.add("active");
+  updateAuthUI();
 });
 
 // Modal logic
@@ -168,6 +169,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     alert('Login successful');
     localStorage.setItem('token', data.token); // Store token in local storage
     closeModal('loginModal');
+    updateAuthUI(); // Update UI after login
   } else {
     alert(data.message);
   }
@@ -195,8 +197,52 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
   .then(data => {
     alert("Registration successful");
     closeModal("registerModal");
+    updateAuthUI(); // Update UI after registration
   })
   .catch(err => {
     alert("Error registering: " + err.message);
   });
 });
+
+// Update UI based on authentication status
+// Decode the JWT token manually to extract the username
+function decodeJWT(token) {
+  const payload = token.split('.')[1]; // Get the payload part of the JWT
+  const decoded = atob(payload); // Base64 decode the payload
+  return JSON.parse(decoded); // Parse the JSON payload
+}
+
+function updateAuthUI() {
+  const authButtons = document.getElementById('authButtons');
+  const token = localStorage.getItem('token'); // Check if token is present
+
+  if (token) {
+    // If token exists, show logout button and user's name (if available)
+    const decodedToken = decodeJWT(token); // Decode JWT token to get user info
+    const username = decodedToken.username || 'User'; // Get username from the token (or use 'User' if unavailable)
+    
+    authButtons.innerHTML = `
+      <span class="username">Hello, ${username}</span>
+      <button class="auth-button logout" onclick="logout()">Logout</button>
+    `;
+    
+    // Enable 'Post Lost Item' button
+    document.getElementById('postButton').disabled = false;
+
+  } else {
+    // If no token, show login and register buttons
+    authButtons.innerHTML = `
+      <button class="auth-button" onclick="openModal('loginModal')">Login</button>
+      <button class="auth-button register" onclick="openModal('registerModal')">Register</button>
+    `;
+    
+    // Disable 'Post Lost Item' button
+    document.getElementById('postButton').disabled = true;
+  }
+}
+
+// Logout function that removes the token and updates UI
+function logout() {
+  localStorage.removeItem('token');
+  updateAuthUI(); // Re-render the auth UI after logging out
+}

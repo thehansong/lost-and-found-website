@@ -57,6 +57,15 @@ h1 {
   background-color: #1e7e34;
 }
 
+.username {
+  font-weight: bold;
+  color: #000;
+  margin: auto;
+}
+.logout {
+  background-color: #ff5c5c;
+}
+
 .search-bar {
   padding: 10px;
   width: 90%;
