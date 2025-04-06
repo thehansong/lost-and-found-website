@@ -282,33 +282,44 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   }
 });
 
-document.getElementById("registerForm").addEventListener("submit", function (e) {
+document.getElementById("registerForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const email = document.querySelector('#registerForm input[type="email"]').value;
-  const password = document.querySelector('#registerForm input[type="password"]').value;
-  const confirmPassword = document.querySelector('#registerForm input[type="password"]:nth-child(2)').value;
+  const email = document.querySelector('#registerForm input[type="email"]').value.trim();
+  const password = document.querySelector('#registerForm input[type="password"]').value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim(); // make sure this ID exists in HTML
+
+  // Email format validation
+  const emailRegex = /^\d{7}@sit\.singaporetech\.edu\.sg$/;
+  if (!emailRegex.test(email)) {
+    alert("Please use a valid SIT email (e.g., 1234567@sit.singaporetech.edu.sg)");
+    return;
+  }
 
   if (password !== confirmPassword) {
     alert("Passwords do not match!");
     return;
   }
 
-  // Register new user by sending POST request to /api/register
-  fetch(`${API_BASE}/api/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  })
-  .then(res => res.json())
-  .then(data => {
+  try {
+    const response = await fetch(`${API_BASE}/api/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Registration failed");
+    }
+
     alert("Registration successful");
     closeModal("registerModal");
-    updateAuthUI(); // Update UI after registration
-  })
-  .catch(err => {
+    updateAuthUI();
+  } catch (err) {
     alert("Error registering: " + err.message);
-  });
+  }
 });
 
 // Update UI based on authentication status

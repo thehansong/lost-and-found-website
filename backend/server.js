@@ -43,17 +43,29 @@ const User = mongoose.model('User', userSchema);
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if the user already exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ message: 'User already exists' });
+  // Validate email format
+  const emailRegex = /^[0-9]+@sit\.singaporetech\.edu\.sg$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: 'Only SIT emails are allowed (digits@sit.singaporetech.edu.sg)' });
   }
 
-  // Create a new user and save
-  const user = new User({ email, password });
-  await user.save();
+  try {
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
-  res.status(201).json({ message: 'User registered successfully' });
+    // Create a new user and save
+    const user = new User({ email, password });
+    await user.save();
+
+    res.status(201).json({ message: 'User registered successfully' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error during registration' });
+  }
 });
 
 // Login route
