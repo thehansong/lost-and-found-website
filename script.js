@@ -45,8 +45,9 @@ function createActionButton(buttonText, itemId, shouldShow, actionFunction) {
   button.dataset.id = itemId;
 
   if (!token || !shouldShow) {
-    button.style.display = "none"; // Hide if not logged in or condition is not met
+    button.style.display = "none"; // Hide the button completely
   } else {
+    button.style.display = "inline-block"; // Ensure the button is shown
     button.addEventListener("click", () => {
       const confirmation = confirm(`Are you sure you want to ${buttonText.toLowerCase()} this item?`);
       if (confirmation) {
@@ -54,7 +55,6 @@ function createActionButton(buttonText, itemId, shouldShow, actionFunction) {
       }
     });
   }
-
   return button;
 }
 
@@ -339,26 +339,33 @@ function updateAuthUI() {
     // Enable 'Post Lost Item' button
     document.getElementById('postButton').disabled = false;
 
-    // Enable claim and delete buttons
-    claimButtons.forEach(button => button.disabled = false);
-    deleteButtons.forEach(button => button.disabled = false);
+    // Show claim and delete buttons if token exists and user is authenticated
+    claimButtons.forEach(btn => {
+      if (btn.dataset.id) {
+        btn.style.display = "inline-block";
+      }
+    });
 
+    deleteButtons.forEach(btn => {
+      if (btn.dataset.id) {
+        btn.style.display = "inline-block";
+      }
+    });
   } else {
-    // If no token, show login and register buttons
-    authButtons.innerHTML = `
+    // If not logged in, show login and register buttons
+    authButtons.innerHTML = ` 
       <button class="auth-button" onclick="openModal('loginModal')">Login</button>
-      <button class="auth-button register" onclick="openModal('registerModal')">Register</button>
+      <button class="auth-button" onclick="openModal('registerModal')">Register</button>
     `;
-    
+
     // Disable 'Post Lost Item' button
     document.getElementById('postButton').disabled = true;
 
-    // Disable claim and delete buttons
-    claimButtons.forEach(button => button.disabled = true);
-    deleteButtons.forEach(button => button.disabled = true);
+    // Hide claim and delete buttons
+    claimButtons.forEach(btn => btn.style.display = "none");
+    deleteButtons.forEach(btn => btn.style.display = "none");
   }
 }
-
 
 // Logout function that removes the token and updates UI
 function logout() {
