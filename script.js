@@ -1,3 +1,5 @@
+const API_BASE = "http://localhost:3000"
+
 function renderItemCard(item) {
   const itemGrid = document.getElementById("itemGrid");
 
@@ -32,6 +34,16 @@ function renderFilteredItems(filter) {
   filteredItems.forEach(renderItemCard);
 }
 
+function fetchItems() {
+  fetch(`${API_BASE}/api/items`)
+    .then(res => res.json())
+    .then(data => {
+      localStorage.setItem("lostFoundItems", JSON.stringify(data));
+      renderFilteredItems(currentFilter);
+    })
+    .catch(err => console.error("Error fetching items:", err));
+}
+
 let currentFilter = "all"; // Track which filter is active
 
 document.querySelectorAll(".filter-button").forEach(button => {
@@ -53,6 +65,22 @@ document.querySelectorAll(".filter-button").forEach(button => {
 
     renderFilteredItems(currentFilter);
   });
+});
+
+document.querySelector(".search-bar").addEventListener("input", async (e) => {
+  const query = e.target.value.trim();
+
+  if (!query) {
+    fetchItems(); // fallback to showing all items
+    return;
+  }
+
+  const res = await fetch(`${API_BASE}/api/items/search?q=${encodeURIComponent(query)}`);
+  const items = await res.json();
+
+  const itemGrid = document.getElementById("itemGrid");
+  itemGrid.innerHTML = ""; // Clear previous results
+  items.forEach(renderItemCard);
 });
 
 document.getElementById("postForm")?.addEventListener("submit", function (e) {
@@ -77,11 +105,27 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
       category: "lost" // Default assigned category when first posted
     };
 
-    const items = JSON.parse(localStorage.getItem("lostFoundItems")) || [];
-    items.push(newItem);
-    localStorage.setItem("lostFoundItems", JSON.stringify(items));
+    const token = localStorage.getItem("token"); // Get JWT token from localStorage
 
-    renderFilteredItems(currentFilter);
+    if (!token) {
+      alert("You must be logged in to post an item.");
+      return;
+    }
+
+    fetch(`${API_BASE}/api/items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+      },
+      body: JSON.stringify(newItem)
+    })
+    .then(res => res.json())
+    .then(() => {
+      fetchItems(); // Re-fetch and re-render items
+    })
+    .catch(err => console.error("Error posting item:", err));
+
     document.getElementById("postForm").reset();
     closeModal("postModal");
   };
@@ -94,7 +138,7 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-  renderFilteredItems("all");
+  fetchItems();
   document.querySelector('.filter-button[data-filter="all"]')?.classList.add("active");
 });
 
@@ -107,14 +151,52 @@ function closeModal(modalId) {
   document.getElementById(modalId).classList.add("hidden");
 }
 
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  alert("Logging in with fake frontend logic…");
-  closeModal("loginModal");
+
+  const email = document.querySelector('#loginForm input[type="email"]').value;
+  const password = document.querySelector('#loginForm input[type="password"]').value;
+
+  const res = await fetch(`${API_BASE}/api/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+  if (res.ok) {
+    alert('Login successful');
+    localStorage.setItem('token', data.token); // Store token in local storage
+    closeModal('loginModal');
+  } else {
+    alert(data.message);
+  }
 });
 
 document.getElementById("registerForm").addEventListener("submit", function (e) {
   e.preventDefault();
-  alert("Registering with fake frontend logic…");
-  closeModal("registerModal");
+
+  const email = document.querySelector('#registerForm input[type="email"]').value;
+  const password = document.querySelector('#registerForm input[type="password"]').value;
+  const confirmPassword = document.querySelector('#registerForm input[type="password"]:nth-child(2)').value;
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  // Register new user by sending POST request to /api/register
+  fetch(`${API_BASE}/api/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert("Registration successful");
+    closeModal("registerModal");
+  })
+  .catch(err => {
+    alert("Error registering: " + err.message);
+  });
 });
