@@ -93,6 +93,33 @@ function claimItem(itemId) {
   .then(data => {
     if (data.success) {
       alert("Item claimed successfully!");
+      
+      // Update the item's tag and hide the claim button
+      const card = document.querySelector(`[data-id="${itemId}"]`)?.closest(".item-card");
+      if (card) {
+        // Update category label
+        const tag = card.querySelector(".tag");
+        if (tag) {
+          tag.textContent = "Found";
+          tag.classList.remove("lost");
+          tag.classList.add("found");
+        }
+      }
+      else {  // Item.html
+        const categoryTag = document.querySelector(".tag");
+        if (categoryTag) {
+          categoryTag.textContent = "Found";
+          categoryTag.classList.remove("lost");
+          categoryTag.classList.add("found");
+        }
+      }
+      
+      // Hide the claim button
+      const claimBtn = document.getElementById("claimButton");
+      if (claimBtn) {
+        claimBtn.style.display = "none";
+      }
+      
       fetchItems(); // Re-fetch items to reflect the updated item status
     } else {
       console.error("Error claiming item:", data.message); // Log the backend error message
@@ -132,6 +159,22 @@ function deleteItem(itemId) {
   .then(data => {
     if (data.success) {
       alert("Item deleted successfully!");
+      
+      // Remove item card from DOM
+      const card = document.querySelector(`[data-id="${itemId}"]`)?.closest(".item-card");
+      if (card) card.remove();
+
+      const itemDetails = document.getElementById("itemDetails");
+      if (itemDetails) {
+        itemDetails.innerHTML = `
+          <a href="index.html" class="post-button back-top">← Back to Listings</a>
+          <div class="item-deleted-message">
+            <h2>Item has been deleted</h2>
+            <p>This item is no longer available in the lost and found system.</p>
+          </div>
+        `;
+      }
+
       fetchItems(); // Re-fetch the items to reflect the change
     } else {
       alert("Error deleting item.");
