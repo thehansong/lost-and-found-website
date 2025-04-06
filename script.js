@@ -1,5 +1,5 @@
 // const API_BASE = "http://localhost:3000"
-const API_BASE = "http://18.214.100.164/"
+const API_BASE = "http://18.214.100.164";
 
 function renderItemCard(item) {
   const itemGrid = document.getElementById("itemGrid");
