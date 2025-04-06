@@ -276,6 +276,10 @@ h1 {
   background-color: #e0a800;
 }
 
+.post-button:disabled {
+  background-color: #b5b5b5;
+}
+
 .filter-button.active {
   background-color: #007bff;
   color: white;
