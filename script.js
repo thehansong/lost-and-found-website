@@ -15,13 +15,119 @@ function renderItemCard(item) {
   info.innerHTML = `
     <h2>${item.title}</h2>
     <p>${item.description}</p>
-    ${item.location ? `<p><em>Location: ${item.location}</em></p>` : ""}
+    ${item.location ? `<p><em>Location: ${item.location}</em></p>` : "<p><em>Location: Unknown</em></p>"}
     <span class="tag ${item.category}">${item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
   `;
 
+  // Create claim and delete buttons
+  const claimButton = createActionButton("Claim", item._id, item.category === "lost", claimItem);
+  claimButton.classList.add('claim-btn'); 
+  const deleteButton = createActionButton("Delete", item._id, true, deleteItem);
+  deleteButton.classList.add('delete-btn');
+
+  // Flex container for buttons
+  const buttonContainer = document.createElement("div");
+  buttonContainer.className = "button-container";
+  buttonContainer.appendChild(claimButton);
+  buttonContainer.appendChild(deleteButton);
+
   card.appendChild(image);
   card.appendChild(info);
+  card.appendChild(buttonContainer);
   itemGrid.appendChild(card);
+}
+
+function createActionButton(buttonText, itemId, shouldShow, actionFunction) {
+  const token = localStorage.getItem("token");
+  const button = document.createElement("button");
+  button.className = buttonText.toLowerCase() + "-button";
+  button.textContent = buttonText;
+  button.dataset.id = itemId;
+
+  if (!token || !shouldShow) {
+    button.style.display = "none"; // Hide if not logged in or condition is not met
+  } else {
+    button.addEventListener("click", () => {
+      const confirmation = confirm(`Are you sure you want to ${buttonText.toLowerCase()} this item?`);
+      if (confirmation) {
+        actionFunction(itemId); // Call the respective action function (claimItem or deleteItem)
+      }
+    });
+  }
+
+  return button;
+}
+
+function claimItem(itemId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("You must be logged in to claim an item.");
+    return;
+  }
+
+  fetch(`${API_BASE}/api/items/${itemId}/claim`, {
+    method: "PUT", // Use PUT method to update the item
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  })
+  .then(res => {
+    // Log the response for debugging
+    console.log(res);
+    return res.json(); // Parse the response
+  })
+  .then(data => {
+    if (data.success) {
+      alert("Item claimed successfully!");
+      fetchItems(); // Re-fetch items to reflect the updated item status
+    } else {
+      console.error("Error claiming item:", data.message); // Log the backend error message
+      alert("Error claiming item: " + data.message);
+    }
+  })
+  .catch(err => {
+    console.error("Error claiming item:", err);
+    alert("Failed to claim item.");
+  });
+}
+
+// Function to handle deleting an item
+function deleteItem(itemId) {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("You must be logged in to delete an item.");
+    return;
+  }
+
+  fetch(`${API_BASE}/api/items/${itemId}`, {
+    method: "DELETE", // DELETE method to remove the item
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    }
+  })
+  .then(res => {
+    if (!res.ok) {
+      // Log the error response from the server
+      return res.text().then(text => {
+        throw new Error(text); // Log the HTML error response
+      });
+    }
+    return res.json();
+  })
+  .then(data => {
+    if (data.success) {
+      alert("Item deleted successfully!");
+      fetchItems(); // Re-fetch the items to reflect the change
+    } else {
+      alert("Error deleting item.");
+    }
+  })
+  .catch(err => {
+    console.error("Error deleting item:", err);
+    alert("Failed to delete item.");
+  });
 }
 
 function renderFilteredItems(filter) {
@@ -216,6 +322,10 @@ function updateAuthUI() {
   const authButtons = document.getElementById('authButtons');
   const token = localStorage.getItem('token'); // Check if token is present
 
+  // Select the claim and delete buttons
+  const claimButtons = document.querySelectorAll('.claim-btn');
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  
   if (token) {
     // If token exists, show logout button and user's name (if available)
     const decodedToken = decodeJWT(token); // Decode JWT token to get user info
@@ -229,6 +339,10 @@ function updateAuthUI() {
     // Enable 'Post Lost Item' button
     document.getElementById('postButton').disabled = false;
 
+    // Enable claim and delete buttons
+    claimButtons.forEach(button => button.disabled = false);
+    deleteButtons.forEach(button => button.disabled = false);
+
   } else {
     // If no token, show login and register buttons
     authButtons.innerHTML = `
@@ -238,8 +352,13 @@ function updateAuthUI() {
     
     // Disable 'Post Lost Item' button
     document.getElementById('postButton').disabled = true;
+
+    // Disable claim and delete buttons
+    claimButtons.forEach(button => button.disabled = true);
+    deleteButtons.forEach(button => button.disabled = true);
   }
 }
+
 
 // Logout function that removes the token and updates UI
 function logout() {
