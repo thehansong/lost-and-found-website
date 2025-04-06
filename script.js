@@ -9,6 +9,12 @@ function renderItemCard(item) {
   card.className = "item-card";
   card.style.textDecoration = "none";
   card.style.color = "inherit";
+  card.style.cursor = "default";
+
+  card.addEventListener("click", function(event) {
+    event.preventDefault();
+  });
+  
 
   const image = document.createElement("img");
   image.src = item.image || "https://via.placeholder.com/150";
