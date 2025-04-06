@@ -4,8 +4,11 @@ const API_BASE = "http://18.214.100.164:3000";
 function renderItemCard(item) {
   const itemGrid = document.getElementById("itemGrid");
 
-  const card = document.createElement("div");
+  const card = document.createElement("a");
+  card.href = `item.html?id=${item._id}`;
   card.className = "item-card";
+  card.style.textDecoration = "none";
+  card.style.color = "inherit";
 
   const image = document.createElement("img");
   image.src = item.image || "https://via.placeholder.com/150";
@@ -28,7 +31,7 @@ function renderItemCard(item) {
 
   // Flex container for buttons
   const buttonContainer = document.createElement("div");
-  buttonContainer.className = "button-container";
+  buttonContainer.className = "button-container center-buttons";
   buttonContainer.appendChild(claimButton);
   buttonContainer.appendChild(deleteButton);
 
@@ -49,7 +52,10 @@ function createActionButton(buttonText, itemId, shouldShow, actionFunction) {
     button.style.display = "none"; // Hide the button completely
   } else {
     button.style.display = "inline-block"; // Ensure the button is shown
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
       const confirmation = confirm(`Are you sure you want to ${buttonText.toLowerCase()} this item?`);
       if (confirmation) {
         actionFunction(itemId); // Call the respective action function (claimItem or deleteItem)
@@ -245,9 +251,14 @@ document.getElementById("postForm")?.addEventListener("submit", function (e) {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-  fetchItems();
-  document.querySelector('.filter-button[data-filter="all"]')?.classList.add("active");
   updateAuthUI();
+  
+  if (document.getElementById("itemDetails")) {
+    renderItemDetailsPage(); // For item.html
+  } else {
+    fetchItems(); // For index.html
+    document.querySelector('.filter-button[data-filter="all"]')?.classList.add("active");
+  }
 });
 
 // Modal logic
@@ -344,8 +355,10 @@ function updateAuthUI() {
     const username = decodedToken.username || 'User'; // Get username from the token (or use 'User' if unavailable)
     
     authButtons.innerHTML = `
-      <span class="username">Hello, ${username}</span>
-      <button class="auth-button logout" onclick="logout()">Logout</button>
+      <div class="user-info">
+        <span class="username">Hello, ${username}</span>
+        <button class="auth-button logout" onclick="logout()">Logout</button>
+      </div>
     `;
     
     // Enable 'Post Lost Item' button
@@ -383,4 +396,76 @@ function updateAuthUI() {
 function logout() {
   localStorage.removeItem('token');
   updateAuthUI(); // Re-render the auth UI after logging out
+}
+
+// ========== ITEM PAGE LOGIC ==========
+function renderItemDetailsPage() {
+  const params = new URLSearchParams(window.location.search);
+  const itemId = params.get('id');
+  if (!itemId) return;
+
+  fetch(`${API_BASE}/api/items`)
+    .then(res => res.json())
+    .then(items => {
+      const item = items.find(i => i._id === itemId);
+      const itemDetails = document.getElementById("itemDetails");
+
+      if (!itemDetails) return;
+
+      if (!item) {
+        itemDetails.innerHTML = "<p>Item not found.</p>";
+        return;
+      }
+      
+      itemDetails.innerHTML = `
+        <a href="index.html" class="post-button back-top">← Back to Listings</a>
+
+        <div class="item-detail-layout">
+          <div class="item-image-container">
+            <img src="${item.image || 'https://via.placeholder.com/600'}" alt="Item image" />
+          </div>
+          <div class="item-info-expanded">
+            <h2>${item.title}</h2>
+            <p><strong>Description:</strong> ${item.description}</p>
+            <p><strong>Location:</strong> ${item.location || 'Unknown'}</p>
+            <p><strong>Status:</strong>
+              <span class="tag ${item.category}">${item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+            </p>
+
+            <div class="button-container">
+              <button class="claim-btn" id="claimButton" data-id="${item._id}" style="display: none;">Claim</button>
+              <button class="delete-btn" id="deleteButton" data-id="${item._id}" style="display: none;">Delete</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Show claim/delete buttons if user is logged in
+      const token = localStorage.getItem('token');
+      const claimBtn = document.getElementById('claimButton');
+      const deleteBtn = document.getElementById('deleteButton');
+
+      if (token) {
+        const canClaim = item.category === 'lost';
+
+        if (canClaim) {
+          claimBtn.style.display = 'inline-block';
+          claimBtn.addEventListener('click', () => {
+            const confirmClaim = confirm("Are you sure you want to claim this item?");
+            if (confirmClaim) claimItem(item._id);
+          });
+        }
+
+        deleteBtn.style.display = 'inline-block';
+        deleteBtn.addEventListener('click', () => {
+          const confirmDelete = confirm("Are you sure you want to delete this item?");
+          if (confirmDelete) deleteItem(item._id);
+        });
+      }
+    })
+    .catch(err => {
+      const itemDetails = document.getElementById("itemDetails");
+      if (itemDetails) itemDetails.innerHTML = "<p>Error loading item.</p>";
+      console.error("Error fetching item:", err);
+    });
 }

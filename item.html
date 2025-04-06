@@ -10,13 +10,9 @@
   <header>
     <div class="header-content">
       <h1><span class="logo-text">🎒 Lost & Found</span></h1>
-      <!-- <div class="auth-buttons">
-        <button class="auth-button" onclick="openModal('loginModal')">Login</button>
-        <button class="auth-button register" onclick="openModal('registerModal')">Register</button>
-      </div> -->
       <div class="auth-buttons" id="authButtons">
-        <!-- This will be filled dynamically -->
-      </div>      
+        <!-- Filled dynamically by script.js -->
+      </div>
     </div>
     <input type="text" placeholder="Search for lost or found items..." class="search-bar" />
     <button class="post-button" id="postButton" onclick="openModal('postModal')" disabled>+ Post Lost Item</button>
@@ -27,8 +23,6 @@
     <button class="filter-button" data-filter="lost">Lost</button>
     <button class="filter-button" data-filter="found">Found</button>
   </section>
-
-  <main class="item-grid" id="itemGrid"></main>
 
   <!-- LOGIN MODAL -->
   <div id="loginModal" class="modal hidden">
@@ -71,6 +65,8 @@
       </form>
     </div>
   </div>
+
+  <main class="item-details-container" id="itemDetails"></main>
 
   <script src="script.js"></script>
 </body>
